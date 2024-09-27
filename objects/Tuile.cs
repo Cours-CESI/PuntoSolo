@@ -10,4 +10,6 @@ public class Tuile
     
     public int Number { get; set; }
     public ServerPlayer SPlayer { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
 }

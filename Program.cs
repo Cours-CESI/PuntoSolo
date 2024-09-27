@@ -1,9 +1,12 @@
-﻿using Punto.objects;
+﻿using Punto;
+using Punto.objects;
 
 class hub
 {
     static void Main(string[] args)
     {
+        WebSocketServer.StartWebSocketServerAsync().Wait();
+        return;
         Console.WriteLine("Punto Client Start");
         
         Game game = new Game(2);

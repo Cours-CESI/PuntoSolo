@@ -2,16 +2,15 @@
 
 public class Case
 {
-    public Tuile tuile { get; set; }
-    public int x { get; set; }
-    public int y { get; set; }
-    public List<Tuile> tuiles { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
+    public Stack<Tuile> Tuiles { get; set; }
     
     public Case(int x, int y)
     {
-        this.x = x;
-        this.y = y;
-        this.tuiles = new List<Tuile>();
+        this.X = x;
+        this.Y = y;
+        this.Tuiles = new Stack<Tuile>();
     }
     
 }
