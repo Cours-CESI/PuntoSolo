@@ -1,0 +1,14 @@
+C:\Users\teomu\cours\Punto\Punto\Punto\bin\Debug\net8.0\Punto.exe
+C:\Users\teomu\cours\Punto\Punto\Punto\bin\Debug\net8.0\Punto.deps.json
+C:\Users\teomu\cours\Punto\Punto\Punto\bin\Debug\net8.0\Punto.runtimeconfig.json
+C:\Users\teomu\cours\Punto\Punto\Punto\bin\Debug\net8.0\Punto.dll
+C:\Users\teomu\cours\Punto\Punto\Punto\bin\Debug\net8.0\Punto.pdb
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.AssemblyInfoInputs.cache
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.AssemblyInfo.cs
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.csproj.CoreCompileInputs.cache
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.dll
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\refint\Punto.dll
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.pdb
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\Punto.genruntimeconfig.cache
+C:\Users\teomu\cours\Punto\Punto\Punto\obj\Debug\net8.0\ref\Punto.dll
