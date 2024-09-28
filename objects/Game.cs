@@ -1,34 +1,36 @@
-﻿using Punto.events;
+﻿using Microsoft.AspNetCore.SignalR;
+using Punto.events;
 
 namespace Punto.objects;
 
 public class Game
 {
-    private Board Board;
+    private readonly IHubContext<ChatHub> _hubContext;
+    public Board Board;
     private int MaxPlayers { get; set; }
     private List<ServerPlayer> Players = new List<ServerPlayer>();
     public GameStats Stat { get; set; }
+    public bool isFirstTurn = true;
+    public int GameLoop;
 
-    public Game (int maxPlayers)
+    
+    public Game(IHubContext<ChatHub> hubContext, int maxPlayers)
     {
+        this.GameLoop = 0;
+        this._hubContext = hubContext;
         this.Board = new Board();
         this.MaxPlayers = maxPlayers;
     }
 
-    /// Adds a player to the game.
-    /// <param name="player">The player to be added to the game.</param>
-    /// /
-    public void AddPlayer(ServerPlayer player)
+    /// Ajoute un joueur à la game courante
+    /// <param name="player"><c>String</c> Nom du joueur qui a rejoint</param>
+    public async Task AddPlayer(ServerPlayer player)
     {
         if (this.Players.Count < MaxPlayers)
         {
             this.Players.Add(player);
             Console.WriteLine($"{player.Name} a rejoint la partie.");
-
-            if (this.Players.Count == MaxPlayers)
-            {
-                new OnMaxPlayerGame(this); // Déclenche l'événement
-            }
+            if (this.Players.Count == MaxPlayers) new OnMaxPlayerGame(this);
         }
         else
         {
@@ -36,48 +38,36 @@ public class Game
         }
     }
 
-    public void Launch()
+    /// Lances the game and starts the main game loop.
+    /// Sets the game status to "InGame" and handles player turns until the game ends.
+    /// Outputs game status information to the console.
+    /// When the game loop exceeds 16 iterations, the game status is set to "Finished".
+    /// <return>A task that represents the asynchronous operation.</return>
+    public async Task Launch()
     {
         Console.WriteLine("Game Start");
         this.Stat = GameStats.InGame;
-        foreach (ServerPlayer player in this.Players)
-        {
-            Console.WriteLine($"Player {player.Name} :");
-            Console.WriteLine($"Tuiles : {player.Tuiles.Count}");
-            Console.WriteLine($"Main : {player.TuilesMain.Count}");
-        }
 
-        int gameLoop = 1;
+        this.GameLoop = 1;
+        int offset = this.Board.GridSize / 2; // Ajoute le décalage ici
+
         while (this.Stat == GameStats.InGame)
         {
-            Console.WriteLine($"Game Loop {gameLoop}");
-
+            Console.WriteLine($"Game Loop {this.GameLoop}");
+    
             foreach (ServerPlayer player in this.Players)
             {
-                Tuile usedTuile = player.Turn(this.Board);
-                
-                Case currentCase = this.Board.Tray[usedTuile.X][usedTuile.Y];
+                Tuile usedTuile = player.Turn(this);
+            
+                // Ajoute l'offset ici lors de l'accès à la case
+                Case currentCase = this.Board.Tray[usedTuile.X + offset][usedTuile.Y + offset]; // Utilisation de l'offset
                 currentCase.Tuiles.Push(usedTuile);
             }
-
-            foreach (List<Case> col in this.Board.Tray)
-            {
-                foreach (Case cell in col)
-                {
-                    if (cell.Tuiles.Count == 0)
-                    {
-                        Console.Write($"[ N ] ");
-                    }
-                    else
-                    {
-                        Console.Write("[" + cell.Tuiles.Peek().Number + " / " + cell.Tuiles.Peek().SPlayer.Name + "] ");
-                    }
-                }
-                Console.WriteLine();
-            }
-            
-            gameLoop++;
-            if(gameLoop > 16) this.Stat = GameStats.Finished;
+            await this.Board.SendTray(this._hubContext, this);
+            Console.ReadLine();
+            // this.Board.Write();
+            this.GameLoop++;
+            if (this.GameLoop > 18) this.Stat = GameStats.Finished;
         }
     }
 

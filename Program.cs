@@ -1,19 +1,44 @@
-﻿using Punto;
+﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.SignalR;
+using Punto;
 using Punto.objects;
 
-class hub
+class Program
 {
+    
+    /**
+     * EnterPoint du programme
+     * Gère toute la partie du programme serveur qui envoye et écoute les requettes
+     * <param name="args">Argument du programme</param>
+     */
     static void Main(string[] args)
     {
-        WebSocketServer.StartWebSocketServerAsync().Wait();
-        return;
         Console.WriteLine("Punto Client Start");
+
+        var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecificOrigin", builder =>
+            {
+                builder.WithOrigins("http://punto.test")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            });
+        });
+        builder.Services
+            .AddSignalR(o => { o.EnableDetailedErrors = true; })
+            .AddJsonProtocol(options => { options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; });
         
-        Game game = new Game(2);
-        ServerPlayer player1 = new ServerPlayer("Player1");
-        ServerPlayer player2 = new ServerPlayer("Player2");
-        game.AddPlayer(player1);
-        game.AddPlayer(player2);
-        
+        // Permet d'ajouter l'instance Game tous au long du lifetime de l'app
+        builder.Services.AddSingleton<Game>(serviceProvider =>
+        {
+            var hubContext = serviceProvider.GetRequiredService<IHubContext<ChatHub>>();
+            return new Game(hubContext, 2);
+        });
+        var app = builder.Build();
+        app.UseCors("AllowSpecificOrigin");
+        app.MapHub<ChatHub>("/chathub");
+        app.Run();
     }
 }

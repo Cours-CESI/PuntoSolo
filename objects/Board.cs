@@ -1,37 +1,61 @@
-﻿namespace Punto.objects;
+﻿using System.Text;
+using Microsoft.AspNetCore.SignalR;
+
+namespace Punto.objects;
 
 public class Board
 {
-    public List<List<Case>> Tray { get; set; }
-
+    public readonly int GridSize = 11;
+    public List<List<Case>> Tray { get; private set; } = new List<List<Case>>();
+    
     public Board()
     {
-        this.Tray = new List<List<Case>>();
-        
-        for (int i = 0; i < 6; i++)
-        {
-            this.Tray.Add(new List<Case>());
-            for (int j = 0; j < 6; j++)
-            {
-                this.Tray[i].Add(new Case(i, j));
-            }
-        }
+        // Initialise un plateau de 11x11
+        InitializeBoard(11, 11);
     }
 
-    public void SetTuile(int x, int y, Tuile tuile)
+    // Initialisation du plateau de taille `width x height`
+    private void InitializeBoard(int width, int height)
     {
-        this.Tray[y][x].Tuiles.Push(tuile);
+        for (int i = 0; i < height; i++)
+        {
+            var row = new List<Case>();
+            for (int j = 0; j < width; j++) 
+                row.Add(new Case(i, j));
+            this.Tray.Add(row);
+        }
     }
 
     public void Write()
     {
-        foreach (List<Case> col in this.Tray)
+        StringBuilder sb = new StringBuilder();
+        foreach (List<Case> row in this.Tray)
         {
-            foreach (Case currentCase in col)
+            foreach (Case cell in row)
+                sb.Append(cell.Tuiles.Count == 0 ? "[ N ] " : $"[{cell.Tuiles.Peek().Number} / {cell.Tuiles.Peek().SPlayer}] ");
+            sb.AppendLine();
+        }
+        Console.Write(sb.ToString());
+    }
+
+    public async Task SendTray(IHubContext<ChatHub> hubContext, Game game)
+    {
+        try
+        {
+            /*foreach (List<Case> col in Tray)
             {
-                Console.Write("[" + currentCase.X + ";" + currentCase.Y + "] ");
-            }
-            Console.WriteLine();
+                foreach (Case currentCase in col)
+                {
+                    Console.WriteLine(currentCase.Tuiles.Count);
+                    //if(currentCase.Tuiles.Count>0) Console.WriteLine(currentCase.Tuiles.Peek().SPlayer);
+                }
+            }*/
+
+            await hubContext.Clients.All.SendAsync("ReceiveData", this.Tray.ToArray(), game.GameLoop, this.GridSize);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de l'envoi du plateau : {ex.Message}");
         }
     }
 }

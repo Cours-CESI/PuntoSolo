@@ -1,4 +1,6 @@
-﻿namespace Punto;
+﻿using Punto.objects;
+
+namespace Punto;
 
 public class Utils
 {
@@ -13,5 +15,10 @@ public class Utils
 
         // Recréer la pile avec la liste mélangée
         return new Stack<T>(list);
+    }
+    
+    public static void LogInvalidMove(Tuile tile, string reason)
+    {
+        Console.WriteLine($"Mouvement invalide pour la tuile {tile.Number} à ({tile.X}, {tile.Y}). Raison: {reason}");
     }
 }
